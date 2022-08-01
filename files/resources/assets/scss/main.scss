@@ -1,0 +1,17 @@
+@import "variables";
+@import "base";
+@import "mediaqueries";
+@import "fonts";
+@import "reset";
+@import "keyframes";
+@import "layout";
+@import "mixin";
+@import "silent_class";
+
+body {
+    @include scroll;
+    @include font(100%);
+    @include no-margins;
+    @include no-border;
+    background-color: $c1;
+}

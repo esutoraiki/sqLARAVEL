@@ -1,0 +1,40 @@
+{
+  "name": "sqlaravel",
+  "version": "1.0.0",
+  "description": "Base to start projects in Laravel, simply and quickly",
+  "main": "index.js",
+  "scripts": {
+    "postinstall": "node install"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/esutoraiki/sqLARAVEL.git"
+  },
+  "keywords": [
+    "laravel",
+    "base",
+    "quickly",
+    "simply",
+    "initial"
+  ],
+  "author": "John Sánchez Alvarez",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/esutoraiki/sqLARAVEL/issues"
+  },
+  "homepage": "https://github.com/esutoraiki/sqLARAVEL#readme",
+  "dependencies": {
+    "del": "^6.0.0",
+    "gulp": "^4.0.2",
+    "gulp-eslint": "^6.0.0",
+    "gulp-jsonlint": "^1.3.2",
+    "gulp-postcss": "^9.0.1",
+    "gulp-sass": "^5.0.0",
+    "gulp-svgmin": "^4.0.1",
+    "merge-stream": "^2.0.0",
+    "postcss": "^8.3.5",
+    "postcss-inline-svg": "^5.0.0",
+    "sass": "^1.45.0",
+    "sisass": "^1.1.13"
+  }
+}
