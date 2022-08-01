@@ -10,17 +10,6 @@ const
     postinlinesvg = require("postcss-inline-svg"),
     jsonlint = require("gulp-jsonlint"),
     merge = require("merge-stream"),
-    browserSync = require("browser-sync").create(),
-
-    arg = require("./config/arg.js").arg,
-    fn = require("./config/fn.js"),
-
-    port =  Number(arg.port) || Number(arg.p) || 3000,
-    port_serve =  Number(arg.portServe) || 8125,
-    sync = fn.stringToBoolean(arg.sync) || false,
-    browser = fn.stringToBoolean(arg.browser) || false,
-
-    reload = browserSync.reload,
 
     // NOTE: foler core and sisass last element of array
     paths_scss = [
@@ -29,32 +18,24 @@ const
         "node_modules/sisass/src/scss/"
     ],
     paths_dest_css = [
-        "assets/css/",
-        "assets/css/pages/",
-        "assets/css/components/"
+        "../public/css/",
+        "../public/css/components/"
     ],
     paths_compile_scss = [
         "assets/scss/*.scss",
-        "assets/scss/pages/*.scss",
         "assets/scss/components/*.scss"
     ],
 
     path_svg = "assets/scss/svg/*.scss",
     path_dest_svg = "assets/css/svg/",
 
-    path_img_svg = "assets/img/svg/*.svg",
-    path_orig_img_svg = "assets/img/svg/orig/*.svg",
-    path_dest_img_svg = "assets/img/svg/",
+    path_img_svg = "../public/img/svg/*.svg",
+    path_orig_img_svg = "../public/img/svg/orig/*.svg",
+    path_dest_img_svg = "../public/img/svg/",
 
     paths_js = [
         "assets/js/*.js",
-        "assets/js/modules/*.js"
-    ],
-
-    paths_html = [
-        "*.html",
-        "pages/*.html",
-        "components/*.html"
+        "assets/js/components/*.js"
     ]
 ;
 
@@ -155,53 +136,27 @@ gulp.task("jsonlint", function () {
         .pipe(jsonlint.reporter(myCustomReporter));
 });
 
-gulp.task("html", function () {
-    console.log("");
-    console.log("---- HTML ----");
-
-    return false;
-});
-
-gulp.task("browserSync", function() {
-    console.log("");
-    console.log("---- INICIADO BROWSERSYNC ----");
-
-    browserSync.init({
-        proxy: "http://localhost:" + port_serve,
-        open: false,
-        notify: false,
-        port: port,
-        codeSync: sync
-    });
-});
-
 gulp.task("watch", function () {
     console.log("");
     console.log("---- INICIADO WATCH ----");
 
-    gulp.watch(paths_js, gulp.series("lint")).on("change", reload);
+    gulp.watch(paths_js, gulp.series("lint")).on("change");
 
-    gulp.watch("assets/json/*.json", gulp.series("jsonlint")).on("change", reload);
+    gulp.watch("assets/json/*.json", gulp.series("jsonlint")).on("change");
 
-    gulp.watch(paths_compile_scss, gulp.series("scss")).on("change", reload);
-    gulp.watch(path_svg, gulp.series("css_svg", "process_svg")).on("change", reload);
+    gulp.watch(paths_compile_scss, gulp.series("scss")).on("change");
+    gulp.watch(path_svg, gulp.series("css_svg", "process_svg")).on("change");
     gulp.watch(path_orig_img_svg, gulp.series(
         "delete_svg",
         "svgmin",
         "css_svg",
         "process_svg"
-    )).on("change", reload);
+    )).on("change");
 
     gulp.watch("assets/scss/core/*.scss", gulp.parallel(
         "scss",
         gulp.series("css_svg", "process_svg")
-    )).on("change", reload);
-
-    gulp.watch(paths_html, gulp.series("html")).on("change", reload);
+    )).on("change");
 });
 
-if (browser === true) {
-    gulp.task("default", gulp.parallel("watch", "browserSync"));
-} else {
-    gulp.task("default", gulp.series("watch"));
-}
+gulp.task("default", gulp.series("watch"));
