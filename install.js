@@ -2,8 +2,8 @@ const
     fs = require("fs"),
 
     // args = process.argv.slice(2),
-    dest_r = "./",
-    dest_p = "../public",
+    dest_r = "../../",
+    dest_p = "../../../public",
     filesDir_r = "files/resources/"
     filesDir_p = "files/public/"
 ;
