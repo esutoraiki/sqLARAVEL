@@ -1,15 +1,37 @@
 "use strict";
 
+import gulp from "gulp";
+import dartSass from "sass";
+import gulpSass from "gulp-sass";
+import { deleteAsync } from "del";
+import merge from "merge-stream";
+import eslint from "gulp-eslint";
+import uglify from "gulp-uglify";
+
 const
-    gulp = require("gulp"),
-    del = require("del"),
-    sass = require("gulp-sass")(require("sass")),
-    eslint = require("gulp-eslint"),
+    { series, parallel, src, dest, task, watch } = gulp,
+    sass = gulpSass(dartSass);
+;
+
+const
+/*
     svgmin = require("gulp-svgmin"),
     postcss = require("gulp-postcss"),
     postinlinesvg = require("postcss-inline-svg"),
     jsonlint = require("gulp-jsonlint"),
-    merge = require("merge-stream"),
+    */
+
+    paths = {
+        js: {
+            src: [
+                "js/*.js"
+
+            ],
+            dest: [
+                "../public/js/"
+            ]
+        }
+    },
 
     // NOTE: foler core and sisass last element of array
     paths_scss = [
@@ -39,6 +61,7 @@ const
     ]
 ;
 
+/*
 gulp.task("delete_svg", function () {
     console.log("");
     console.log("---- SVG ----");
@@ -95,15 +118,16 @@ gulp.task("scss", function () {
     console.log("");
     return merge(...task_array);
 });
+*/
 
-gulp.task("lint", function() {
+task("lint", function() {
     console.log("");
     console.log("---- ES-LINT ----");
 
     let task_array = [];
 
-    for (let i = 0; i < paths_js.length; i++) {
-        task_array[i] = gulp.src(paths_js[i])
+    for (let i = 0; i < paths.js.src.length; i++) {
+        task_array[i] = src(paths.js.src[i])
             .pipe(eslint({}))
             .pipe(eslint.format())
             .pipe(eslint.results(results => {
@@ -111,16 +135,31 @@ gulp.task("lint", function() {
                 console.log(`Total Results: ${results.length}`);
                 console.log(`Total Warnings: ${results.warningCount}`);
                 console.log(`Total Errors: ${results.errorCount}`);
-
                 console.log("");
             }));
     }
 
     console.log("");
     return merge(...task_array);
-
 });
 
+task("js", function () {
+    console.log("");
+    console.log("---- JS ----");
+
+    let task_array = [];
+
+    for (let i = 0; i < paths.js.src.length; i++) {
+        task_array[i] = src(paths.js.src[i])
+            .pipe(uglify())
+            .pipe(gulp.dest(paths.js.dest));
+    }
+
+    console.log("");
+    return merge(...task_array);
+});
+
+/*
 gulp.task("jsonlint", function () {
     console.log("");
     console.log("---- JSON-LINT ----");
@@ -135,13 +174,16 @@ gulp.task("jsonlint", function () {
         .pipe(jsonlint())
         .pipe(jsonlint.reporter(myCustomReporter));
 });
+*/
 
-gulp.task("watch", function () {
+/*
+task("watch", function () {
     console.log("");
     console.log("---- INICIADO WATCH ----");
 
     gulp.watch(paths_js, gulp.series("lint")).on("change");
 
+    /*
     gulp.watch("assets/json/*.json", gulp.series("jsonlint")).on("change");
 
     gulp.watch(paths_compile_scss, gulp.series("scss")).on("change");
@@ -157,6 +199,18 @@ gulp.task("watch", function () {
         "scss",
         gulp.series("css_svg", "process_svg")
     )).on("change");
+    */
+/*
 });
+*/
 
-gulp.task("default", gulp.series("watch"));
+function watchFiles() {
+    console.log("");
+    console.log("---- INICIADO WATCH ----");
+
+    watch(paths.js.src, series("lint", "js"));
+//  gulp.watch(paths.styles.src, styles);
+}
+
+export { watchFiles as watch };
+export default watchFiles;
