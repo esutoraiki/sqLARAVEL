@@ -3,7 +3,7 @@ const
 
     // args = process.argv.slice(2),
     dest = "../../resources/",
-    filesDir = "assets/"
+    filesDir = "../../assets/"
 ;
 
 // Copy files to the project
