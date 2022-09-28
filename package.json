@@ -1,6 +1,6 @@
 {
   "name": "sqlaravel",
-  "version": "1.0.11",
+  "version": "1.0.12",
   "description": "Base to start projects in Laravel, simply and quickly",
   "main": "index.js",
   "repository": {
@@ -32,7 +32,7 @@
     "postcss": "^8.4.14",
     "postcss-inline-svg": "^5.0.0",
     "sass": "^1.54.0",
-    "sisass": "^1.1.13"
+    "sisass": "^1.1.15"
   },
   "scripts": {
       "postinstall": "node ../sisass/install --path ../../resources/ --dir files/assets/"
