@@ -35,6 +35,6 @@
     "sisass": "^1.1.16"
   },
   "scripts": {
-      "postinstall": "node install && npm explore sisass -- npm run init -- --path ../../resources/",
+      "postinstall": "node install && npm explore sisass -- npm run init -- --path ../../resources/"
   }
 }
