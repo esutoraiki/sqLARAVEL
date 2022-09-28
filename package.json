@@ -35,6 +35,6 @@
     "sisass": "^1.1.13"
   },
   "scripts": {
-      "postinstall": "sisass install --path ../../resources/ --dir files/assets/"
+      "postinstall": "node ../sisass/install --path ../../resources/ --dir files/assets/"
   }
 }
