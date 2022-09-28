@@ -1,6 +1,6 @@
 {
   "name": "sqlaravel",
-  "version": "1.0.15",
+  "version": "1.0.16",
   "description": "Base to start projects in Laravel, simply and quickly",
   "main": "index.js",
   "repository": {
@@ -35,6 +35,7 @@
     "sisass": "^1.1.16"
   },
   "scripts": {
-      "postinstall": "node install && npm explore sisass -- npm run init -- --path ../../resources/"
+      "postinstall": "node install",
+      "postprepare": "npm explore sisass -- npm run init -- --path ../../resources/"
   }
 }
