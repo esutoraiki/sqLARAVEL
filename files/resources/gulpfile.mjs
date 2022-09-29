@@ -1,3 +1,5 @@
+/* Update: 20220929 */
+
 "use strict";
 
 import gulp from "gulp";
@@ -24,11 +26,13 @@ const
     paths = {
         js: {
             src: [
-                "js/*.js"
+                "js/*.js",
+                "js/modules/*.js"
 
             ],
             dest: [
-                "../public/js/"
+                "../public/js/min/",
+                "../public/js/min/modules/",
             ]
         }
     },
@@ -41,11 +45,11 @@ const
     ],
     paths_dest_css = [
         "../public/css/",
-        "../public/css/components/"
+        "../public/css/modules/"
     ],
     paths_compile_scss = [
         "assets/scss/*.scss",
-        "assets/scss/components/*.scss"
+        "assets/scss/modules/*.scss"
     ],
 
     path_svg = "assets/scss/svg/*.scss",
@@ -57,7 +61,7 @@ const
 
     paths_js = [
         "assets/js/*.js",
-        "assets/js/components/*.js"
+        "assets/js/modules/*.js"
     ]
 ;
 
@@ -120,44 +124,6 @@ gulp.task("scss", function () {
 });
 */
 
-task("lint", function() {
-    console.log("");
-    console.log("---- ES-LINT ----");
-
-    let task_array = [];
-
-    for (let i = 0; i < paths.js.src.length; i++) {
-        task_array[i] = src(paths.js.src[i])
-            .pipe(eslint({}))
-            .pipe(eslint.format())
-            .pipe(eslint.results(results => {
-                // Called once for all ESLint results.
-                console.log(`Total Results: ${results.length}`);
-                console.log(`Total Warnings: ${results.warningCount}`);
-                console.log(`Total Errors: ${results.errorCount}`);
-                console.log("");
-            }));
-    }
-
-    console.log("");
-    return merge(...task_array);
-});
-
-task("js", function () {
-    console.log("");
-    console.log("---- JS ----");
-
-    let task_array = [];
-
-    for (let i = 0; i < paths.js.src.length; i++) {
-        task_array[i] = src(paths.js.src[i])
-            .pipe(uglify())
-            .pipe(gulp.dest(paths.js.dest));
-    }
-
-    console.log("");
-    return merge(...task_array);
-});
 
 /*
 gulp.task("jsonlint", function () {
@@ -204,11 +170,52 @@ task("watch", function () {
 });
 */
 
+/*
+task("js", function () {
+    console.log("");
+    console.log("---- JS ----");
+
+    let task_array = [];
+
+    for (let i = 0; i < paths.js.src.length; i++) {
+        task_array[i] = src(paths.js.src[i])
+            .pipe(uglify())
+            .pipe(gulp.dest(paths.js.dest));
+    }
+
+    console.log("");
+    return merge(...task_array);
+});
+*/
+
+task("lint", function() {
+    console.log("");
+    console.log("---- ES-LINT ----");
+
+    let task_array = [];
+
+    for (let i = 0; i < paths.js.src.length; i++) {
+        task_array[i] = src(paths.js.src[i])
+            .pipe(eslint({}))
+            .pipe(eslint.format())
+            .pipe(eslint.results(results => {
+                // Called once for all ESLint results.
+                console.log(`Total Results: ${results.length}`);
+                console.log(`Total Warnings: ${results.warningCount}`);
+                console.log(`Total Errors: ${results.errorCount}`);
+                console.log("");
+            }));
+    }
+
+    console.log("");
+    return merge(...task_array);
+});
+
 function watchFiles() {
     console.log("");
     console.log("---- INICIADO WATCH ----");
 
-    watch(paths.js.src, series("lint", "js"));
+    watch(paths.js.src, series("lint"));
 //  gulp.watch(paths.styles.src, styles);
 }
 
