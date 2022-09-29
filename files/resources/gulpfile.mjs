@@ -9,13 +9,17 @@ import { deleteAsync } from "del";
 import merge from "merge-stream";
 import eslint from "gulp-eslint";
 import uglify from "gulp-uglify";
+import arg from "./config/arg.js";
+import fn from "./config/fn.js";
 
 const
+    p = arg.arg,
+
     { series, parallel, src, dest, task, watch } = gulp,
-    sass = gulpSass(dartSass);
-;
+    sass = gulpSass(dartSass),
 
-const
+    minjs = fn.stringToBoolean(p.minjs) || false,
+
 /*
     svgmin = require("gulp-svgmin"),
     postcss = require("gulp-postcss"),
@@ -31,8 +35,12 @@ const
 
             ],
             dest: [
+                "../public/js/",
+                "../public/js/modules/",
+            ],
+            mindest: [
                 "../public/js/min/",
-                "../public/js/min/modules/",
+                "../public/js/modules/min",
             ]
         }
     },
@@ -64,6 +72,8 @@ const
         "assets/js/modules/*.js"
     ]
 ;
+
+console.dir(minjs);
 
 /*
 gulp.task("delete_svg", function () {
@@ -170,24 +180,6 @@ task("watch", function () {
 });
 */
 
-/*
-task("js", function () {
-    console.log("");
-    console.log("---- JS ----");
-
-    let task_array = [];
-
-    for (let i = 0; i < paths.js.src.length; i++) {
-        task_array[i] = src(paths.js.src[i])
-            .pipe(uglify())
-            .pipe(gulp.dest(paths.js.dest));
-    }
-
-    console.log("");
-    return merge(...task_array);
-});
-*/
-
 task("lint", function() {
     console.log("");
     console.log("---- ES-LINT ----");
@@ -211,11 +203,32 @@ task("lint", function() {
     return merge(...task_array);
 });
 
+task("js", function () {
+    console.log("");
+    console.log("---- JS ----");
+
+    let task_array = [];
+
+    for (let i = 0; i < paths.js.src.length; i++) {
+        if (minjs) {
+            task_array[i] = src(paths.js.src[i])
+                .pipe(uglify())
+                .pipe(gulp.dest(paths.js.mindest[i]));
+        } else {
+            task_array[i] = src(paths.js.src[i])
+                .pipe(gulp.dest(paths.js.dest[i]));
+        }
+    }
+
+    console.log("");
+    return merge(...task_array);
+});
+
 function watchFiles() {
     console.log("");
     console.log("---- INICIADO WATCH ----");
 
-    watch(paths.js.src, series("lint"));
+    watch(paths.js.src, series("lint", "js"));
 //  gulp.watch(paths.styles.src, styles);
 }
 
