@@ -1,4 +1,4 @@
-/* Update: 20220929 */
+/* Update: 20221003 */
 
 "use strict";
 
@@ -9,6 +9,8 @@ import { deleteAsync } from "del";
 import merge from "merge-stream";
 import eslint from "gulp-eslint";
 import uglify from "gulp-uglify";
+import rename from "gulp-rename";
+
 import arg from "./config/arg.js";
 import fn from "./config/fn.js";
 
@@ -213,6 +215,13 @@ task("js", function () {
         if (minjs) {
             task_array[i] = src(paths.js.src[i])
                 .pipe(uglify())
+                .pipe(rename(function (path) {
+                    return {
+                        dirname: path.dirname,
+                        basename: path.basename + ".min",
+                        extname: ".js"
+                    };
+                }))
                 .pipe(gulp.dest(paths.js.mindest[i]));
         } else {
             task_array[i] = src(paths.js.src[i])
