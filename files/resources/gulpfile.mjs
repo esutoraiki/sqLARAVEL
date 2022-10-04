@@ -1,4 +1,4 @@
-/* Update: 20221003 */
+/* Update: 20221004 */
 
 "use strict";
 
@@ -10,6 +10,7 @@ import merge from "merge-stream";
 import eslint from "gulp-eslint";
 import uglify from "gulp-uglify";
 import rename from "gulp-rename";
+import jsonlint from "gulp-jsonlint";
 
 import arg from "./config/arg.js";
 import fn from "./config/fn.js";
@@ -44,7 +45,18 @@ const
                 "../public/js/min/",
                 "../public/js/modules/min",
             ]
-        }
+        },
+        json: {
+            src: [
+                "json/*.json"
+            ],
+            dest: [
+                "../public/json/"
+            ]
+        },
+        clean: [
+            "*.gitkeep"
+        ]
     },
 
     // NOTE: foler core and sisass last element of array
@@ -67,15 +79,8 @@ const
 
     path_img_svg = "../public/img/svg/*.svg",
     path_orig_img_svg = "../public/img/svg/orig/*.svg",
-    path_dest_img_svg = "../public/img/svg/",
-
-    paths_js = [
-        "assets/js/*.js",
-        "assets/js/modules/*.js"
-    ]
+    path_dest_img_svg = "../public/img/svg/"
 ;
-
-console.dir(minjs);
 
 /*
 gulp.task("delete_svg", function () {
@@ -154,37 +159,10 @@ gulp.task("jsonlint", function () {
 });
 */
 
-/*
-task("watch", function () {
+
+task("jslint", function() {
     console.log("");
-    console.log("---- INICIADO WATCH ----");
-
-    gulp.watch(paths_js, gulp.series("lint")).on("change");
-
-    /*
-    gulp.watch("assets/json/*.json", gulp.series("jsonlint")).on("change");
-
-    gulp.watch(paths_compile_scss, gulp.series("scss")).on("change");
-    gulp.watch(path_svg, gulp.series("css_svg", "process_svg")).on("change");
-    gulp.watch(path_orig_img_svg, gulp.series(
-        "delete_svg",
-        "svgmin",
-        "css_svg",
-        "process_svg"
-    )).on("change");
-
-    gulp.watch("assets/scss/core/*.scss", gulp.parallel(
-        "scss",
-        gulp.series("css_svg", "process_svg")
-    )).on("change");
-    */
-/*
-});
-*/
-
-task("lint", function() {
-    console.log("");
-    console.log("---- ES-LINT ----");
+    console.log("---- JS-ES-LINT ----");
 
     let task_array = [];
 
@@ -222,10 +200,10 @@ task("js", function () {
                         extname: ".js"
                     };
                 }))
-                .pipe(gulp.dest(paths.js.mindest[i]));
+                .pipe(dest(paths.js.mindest[i]));
         } else {
             task_array[i] = src(paths.js.src[i])
-                .pipe(gulp.dest(paths.js.dest[i]));
+                .pipe(dest(paths.js.dest[i]));
         }
     }
 
@@ -233,13 +211,61 @@ task("js", function () {
     return merge(...task_array);
 });
 
+task("jsonlint", function () {
+    console.log("");
+    console.log("---- JSON-LINT ----");
+
+    let task_array = [];
+
+    for (let i = 0; i < paths.json.src.length; i++) {
+        task_array[i] = src(paths.json.src[i])
+            .pipe(jsonlint())
+            .pipe(jsonlint.reporter())
+            .pipe(dest(paths.json.dest[i]));
+    }
+
+    console.log("");
+    return merge(...task_array);
+});
+
+/*
+task("clean", function () {
+    return del(paths.clean);
+});
+*/
+
 function watchFiles() {
     console.log("");
     console.log("---- INICIADO WATCH ----");
 
-    watch(paths.js.src, series("lint", "js"));
-//  gulp.watch(paths.styles.src, styles);
+    watch(paths.js.src, series("jslint", "js"));
+    watch(paths.json.src, series("jsonlint"));
 }
+
+/*
+task("watch", function () {
+    console.log("");
+    console.log("---- INICIADO WATCH ----");
+
+    gulp.watch(paths_js, gulp.series("lint")).on("change");
+
+    gulp.watch("assets/json/*.json", gulp.series("jsonlint")).on("change");
+
+    gulp.watch(paths_compile_scss, gulp.series("scss")).on("change");
+    gulp.watch(path_svg, gulp.series("css_svg", "process_svg")).on("change");
+    gulp.watch(path_orig_img_svg, gulp.series(
+        "delete_svg",
+        "svgmin",
+        "css_svg",
+        "process_svg"
+    )).on("change");
+
+    gulp.watch("assets/scss/core/*.scss", gulp.parallel(
+        "scss",
+        gulp.series("css_svg", "process_svg")
+    )).on("change");
+});
+*/
 
 export { watchFiles as watch };
 export default watchFiles;
