@@ -26,11 +26,21 @@ cd resources
 gulp
 ```
 
+### Gulp task
+
+#### cleanfiles
+
+This task helps to remove temporary files in the project
+
+```bash
+gulp cleanfiles
+```
+
 ### Parameters for the gulp command
 
 #### minjs (boolean: false)
 
-True to minify the js files.
+True to minify the js files. It is executed as follows (*preferably*)
 
 ```bash
 gulp --minjs true
