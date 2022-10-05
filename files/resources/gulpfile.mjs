@@ -1,4 +1,4 @@
-/* Update: 20221004 */
+/* Update: 20221005 */
 
 "use strict";
 
@@ -55,7 +55,20 @@ const
             ]
         },
         clean: [
-            "*.gitkeep"
+            "**/.gitkeep",
+            "**/.**.*.swp",
+            "**/.**.*.swo",
+            "**/*.*~",
+            "**/Thumbs.db",
+            "**/.DS_Store",
+            "**/.vscode",
+            "../public/**/.gitkeep",
+            "../public/**/*.*~",
+            "../public/**/.**.*.swp",
+            "../public/**/.**.*.swo",
+            "../public/**/Thumbs.db",
+            "../public/**/.DS_Store",
+            "../public/**/.vscode"
         ]
     },
 
@@ -160,6 +173,30 @@ gulp.task("jsonlint", function () {
 */
 
 
+task("deljs", function (done) {
+    console.log("");
+    console.log("---- JS-DELETE-FILES ----");
+
+    console.log("JS Files deleted: \n");
+
+    const all_paths_js = [...paths.js.dest, ...paths.js.mindest];
+    let array_del = [];
+
+    for (let i of all_paths_js) {
+        array_del.push(i + "*js")
+    }
+
+    deleteAsync(array_del, {
+        force: true
+    }).then(function (files) {
+        for (let file of files) {
+            console.log(file);
+        }
+        console.log("");
+        done();
+    });
+});
+
 task("jslint", function() {
     console.log("");
     console.log("---- JS-ES-LINT ----");
@@ -228,17 +265,35 @@ task("jsonlint", function () {
     return merge(...task_array);
 });
 
-/*
-task("clean", function () {
-    return del(paths.clean);
+task("cleanfiles", function (done) {
+    console.log("");
+    console.log("---- CLEAN FILES ----");
+
+    deleteAsync(paths.clean, {
+        force: true
+    }).then(function (files) {
+        console.log("Files and directories that would be deleted: ");
+        for (let file of files) {
+            console.log(file);
+        }
+
+        console.log("");
+        done();
+    });
 });
-*/
 
 function watchFiles() {
     console.log("");
     console.log("---- INICIADO WATCH ----");
 
-    watch(paths.js.src, series("jslint", "js"));
+    // JS //
+    watch(paths.js.src, series(
+        "deljs",
+        "jslint",
+        "js"
+    ));
+
+    // JSON //
     watch(paths.json.src, series("jsonlint"));
 }
 
