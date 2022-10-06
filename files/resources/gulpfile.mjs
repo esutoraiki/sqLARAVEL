@@ -27,10 +27,25 @@ const
     svgmin = require("gulp-svgmin"),
     postcss = require("gulp-postcss"),
     postinlinesvg = require("postcss-inline-svg"),
-    jsonlint = require("gulp-jsonlint"),
     */
 
     paths = {
+        scss: {
+            src: [
+                "scss/*.scss",
+                "scss/modules/*.scss"
+            ],
+            dest: [
+                "../public/css/",
+                "../public/css/modules/"
+            ],
+            // NOTE: The core directory and sisass should be the last items in the array
+            core: [
+                "scss/",
+                "scss/core/",
+                "../node_modules/sisass/src/scss/"
+            ]
+        },
         js: {
             src: [
                 "js/*.js",
@@ -71,21 +86,6 @@ const
             "../public/**/.vscode"
         ]
     },
-
-    // NOTE: foler core and sisass last element of array
-    paths_scss = [
-        "assets/scss/",
-        "assets/scss/core/",
-        "node_modules/sisass/src/scss/"
-    ],
-    paths_dest_css = [
-        "../public/css/",
-        "../public/css/modules/"
-    ],
-    paths_compile_scss = [
-        "assets/scss/*.scss",
-        "assets/scss/modules/*.scss"
-    ],
 
     path_svg = "assets/scss/svg/*.scss",
     path_dest_svg = "assets/css/svg/",
@@ -134,24 +134,6 @@ gulp.task("css_svg", function () {
         .pipe(gulp.dest(path_dest_svg));
 });
 
-gulp.task("scss", function () {
-    console.log("");
-    console.log("---- Styles ----");
-
-    let task_array = [];
-
-    for (let i = 0; i < paths_compile_scss.length; i++) {
-        task_array[i] = gulp.src(paths_compile_scss[i])
-            .pipe(sass({
-                outputStyle: "compressed",
-                includePaths: paths_scss
-            }).on("error", sass.logError))
-            .pipe(gulp.dest(paths_dest_css[i]));
-    }
-
-    console.log("");
-    return merge(...task_array);
-});
 */
 
 
@@ -282,6 +264,25 @@ task("cleanfiles", function (done) {
     });
 });
 
+task("scss", function () {
+    console.log("");
+    console.log("---- Styles ----");
+
+    let task_array = [];
+
+    for (let i = 0; i < paths.scss.src.length; i++) {
+        task_array[i] = src(paths.scss.src[i])
+            .pipe(sass({
+                outputStyle: "compressed",
+                includePaths: paths.scss.core
+            }).on("error", sass.logError))
+            .pipe(dest(paths.scss.dest[i]));
+    }
+
+    console.log("");
+    return merge(...task_array);
+});
+
 function watchFiles() {
     console.log("");
     console.log("---- INICIADO WATCH ----");
@@ -295,6 +296,9 @@ function watchFiles() {
 
     // JSON //
     watch(paths.json.src, series("jsonlint"));
+
+    // SCSS //
+    watch(paths.scss.src, series("scss"));
 }
 
 /*
