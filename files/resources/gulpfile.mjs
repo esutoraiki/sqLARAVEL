@@ -1,4 +1,4 @@
-/* Update: 20221005 */
+/* Update: 20221011 */
 
 "use strict";
 
@@ -11,6 +11,9 @@ import eslint from "gulp-eslint";
 import uglify from "gulp-uglify";
 import rename from "gulp-rename";
 import jsonlint from "gulp-jsonlint";
+import postcss from "gulp-postcss";
+import postinlinesvg from "postcss-inline-svg";
+import svgmin from "gulp-svgmin";
 
 import arg from "./config/arg.js";
 import fn from "./config/fn.js";
@@ -23,13 +26,21 @@ const
 
     minjs = fn.stringToBoolean(p.minjs) || false,
 
-/*
-    svgmin = require("gulp-svgmin"),
-    postcss = require("gulp-postcss"),
-    postinlinesvg = require("postcss-inline-svg"),
-    */
-
     paths = {
+        svg: {
+            img: [
+                "../public/img/svg/orig/*.svg"
+            ],
+            img_dest: [
+                "../public/img/svg/"
+            ],
+            src: [
+                "scss/svg/*.scss"
+            ],
+            dest: [
+                "../public/css/svg/"
+            ]
+        },
         scss: {
             src: [
                 "scss/*.scss",
@@ -40,17 +51,17 @@ const
                 "../public/css/modules/"
             ],
             // NOTE: The core directory and sisass should be the last items in the array
-            core: [
+            depen: [
                 "scss/",
                 "scss/core/",
                 "../node_modules/sisass/src/scss/"
-            ]
+            ],
+            core: "scss/core/*.scss"
         },
         js: {
             src: [
                 "js/*.js",
                 "js/modules/*.js"
-
             ],
             dest: [
                 "../public/js/",
@@ -85,77 +96,52 @@ const
             "../public/**/.DS_Store",
             "../public/**/.vscode"
         ]
-    },
-
-    path_svg = "assets/scss/svg/*.scss",
-    path_dest_svg = "assets/css/svg/",
-
-    path_img_svg = "../public/img/svg/*.svg",
-    path_orig_img_svg = "../public/img/svg/orig/*.svg",
-    path_dest_img_svg = "../public/img/svg/"
+    }
 ;
 
-/*
-gulp.task("delete_svg", function () {
+task("svgdel", function (done) {
     console.log("");
-    console.log("---- SVG ----");
+    console.log("---- SVG-DELETE-FILES ----");
 
-    return del(path_img_svg);
-});
+    console.log("SVG Files deleted: \n");
 
-gulp.task("svgmin", function () {
-    return gulp.src(path_orig_img_svg)
-        .pipe(svgmin(
-            { removeStyleElement: true },
-            { removeComments: true }
-        ))
-        .pipe(gulp.dest(path_dest_img_svg));
-})
+    let array_del = [];
 
-gulp.task("process_svg", function () {
-    return gulp.src(path_dest_svg + "*.css")
-        .pipe(postcss([
-            postinlinesvg({
-                removeFill: true
-            })
-        ]))
-        .pipe(gulp.dest(path_dest_svg));
-})
+    for (let i of paths.svg.img_dest) {
+        array_del.push(i + "*svg")
+    }
 
-gulp.task("css_svg", function () {
-    console.log("");
-    console.log("---- Styles SVG ----");
-
-    return gulp.src(path_svg)
-        .pipe(sass({
-            outputStyle: "compressed",
-            includePaths: paths_scss
-        }).on("error", sass.logError))
-        .pipe(gulp.dest(path_dest_svg));
-});
-
-*/
-
-
-/*
-gulp.task("jsonlint", function () {
-    console.log("");
-    console.log("---- JSON-LINT ----");
-
-    let
-        myCustomReporter = function (file) {
-            log("File " + file.path + " is not valid JSON.");
+    deleteAsync(array_del, {
+        force: true
+    }).then(function (files) {
+        for (let file of files) {
+            console.log(file);
         }
-    ;
-
-    return gulp.src("assets/json/*.json")
-        .pipe(jsonlint())
-        .pipe(jsonlint.reporter(myCustomReporter));
+        console.log("");
+        done();
+    });
 });
-*/
 
+task("svgmin", function () {
+    console.log("");
+    console.log("---- SVGO ----");
 
-task("deljs", function (done) {
+    let task_array = [];
+
+    for (let i = 0; i < paths.svg.img.length; i++) {
+        task_array[i] = src(paths.svg.img[i])
+            .pipe(svgmin(
+                { removeStyleElement: true },
+                { removeComments: true }
+            ))
+            .pipe(gulp.dest(paths.svg.img_dest[i]));
+    }
+
+    console.log("");
+    return merge(...task_array);
+})
+
+task("jsdel", function (done) {
     console.log("");
     console.log("---- JS-DELETE-FILES ----");
 
@@ -274,9 +260,49 @@ task("scss", function () {
         task_array[i] = src(paths.scss.src[i])
             .pipe(sass({
                 outputStyle: "compressed",
-                includePaths: paths.scss.core
+                includePaths: paths.scss.depen
             }).on("error", sass.logError))
             .pipe(dest(paths.scss.dest[i]));
+    }
+
+    console.log("");
+    return merge(...task_array);
+});
+
+task("scsssvg", function () {
+    console.log("");
+    console.log("---- Styles SVG ----");
+
+    let task_array = [];
+
+
+    for (let i = 0; i < paths.svg.src.length; i++) {
+        task_array[i] = src(paths.svg.src[i])
+            .pipe(sass({
+                outputStyle: "compressed",
+                includePaths: paths.scss.depen
+            }).on("error", sass.logError))
+            .pipe(dest(paths.svg.dest[i]));
+    }
+
+    console.log("");
+    return merge(...task_array);
+});
+
+task("process_svg", function () {
+    console.log("");
+    console.log("---- Process SVG ----");
+
+    let task_array = [];
+
+    for (let i = 0; i < paths.svg.dest.length; i++) {
+        task_array[i] = src(paths.svg.dest + "*.css")
+            .pipe(postcss([
+                postinlinesvg({
+                    removeFill: false
+                })
+            ]))
+            .pipe(dest(paths.svg.dest));
     }
 
     console.log("");
@@ -289,7 +315,7 @@ function watchFiles() {
 
     // JS //
     watch(paths.js.src, series(
-        "deljs",
+        "jsdel",
         "jslint",
         "js"
     ));
@@ -299,32 +325,26 @@ function watchFiles() {
 
     // SCSS //
     watch(paths.scss.src, series("scss"));
-}
-
-/*
-task("watch", function () {
-    console.log("");
-    console.log("---- INICIADO WATCH ----");
-
-    gulp.watch(paths_js, gulp.series("lint")).on("change");
-
-    gulp.watch("assets/json/*.json", gulp.series("jsonlint")).on("change");
-
-    gulp.watch(paths_compile_scss, gulp.series("scss")).on("change");
-    gulp.watch(path_svg, gulp.series("css_svg", "process_svg")).on("change");
-    gulp.watch(path_orig_img_svg, gulp.series(
-        "delete_svg",
-        "svgmin",
-        "css_svg",
-        "process_svg"
-    )).on("change");
-
-    gulp.watch("assets/scss/core/*.scss", gulp.parallel(
+    watch(paths.scss.core, parallel(
         "scss",
-        gulp.series("css_svg", "process_svg")
-    )).on("change");
-});
-*/
+        series(
+            "scsssvg",
+            "process_svg"
+        )
+    ));
+
+    // SVG //
+    watch(paths.svg.img, series(
+        "svgdel",
+        "svgmin",
+        "scsssvg",
+        "process_svg"
+    ));
+    watch(paths.svg.src, series(
+        "scsssvg",
+        "process_svg"
+    ));
+}
 
 export { watchFiles as watch };
 export default watchFiles;
