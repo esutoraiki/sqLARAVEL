@@ -309,6 +309,13 @@ task("process_svg", function () {
     return merge(...task_array);
 });
 
+function list_files(path) {
+    console.log("");
+    console.log("-----------------------------");
+    console.log(path);
+    console.log("-----------------------------");
+}
+
 function watchFiles() {
     console.log("");
     console.log("---- INICIADO WATCH ----");
@@ -317,33 +324,35 @@ function watchFiles() {
     watch(paths.js.src, series(
         "jsdel",
         "jslint",
-        "js"
-    ));
+        "js",
+    )).on("change", list_files);
 
     // JSON //
-    watch(paths.json.src, series("jsonlint"));
+    watch(paths.json.src, series(
+        "jsonlint",
+    )).on("change", list_files);
 
     // SCSS //
-    watch(paths.scss.src, series("scss"));
+    watch(paths.scss.src, series("scss")).on("change", list_files);
     watch(paths.scss.core, parallel(
         "scss",
         series(
             "scsssvg",
-            "process_svg"
+            "process_svg",
         )
-    ));
+    )).on("change", list_files);
 
     // SVG //
     watch(paths.svg.img, series(
         "svgdel",
         "svgmin",
         "scsssvg",
-        "process_svg"
-    ));
+        "process_svg",
+    )).on("change", list_files);
     watch(paths.svg.src, series(
         "scsssvg",
-        "process_svg"
-    ));
+        "process_svg",
+    )).on("change", list_files);
 }
 
 export { watchFiles as watch };
