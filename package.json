@@ -1,6 +1,6 @@
 {
   "name": "sqlaravel",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Base to start projects in Laravel, simply and quickly",
   "main": "index.js",
   "repository": {

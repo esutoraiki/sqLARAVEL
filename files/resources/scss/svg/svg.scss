@@ -1,5 +1,5 @@
 @import "instance";
 
 .logo {
-    @include icon-svg(name_svg, 100px, 100px, $c1);
+    @include icon-svg(sqlaravel, 100px, 100px, $c1);
 }
